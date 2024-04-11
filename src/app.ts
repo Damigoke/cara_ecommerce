@@ -5,6 +5,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import path from 'path';
+import cors from 'cors';
 import bodyParser from 'body-parser';
 import User   from './model/userModel';
 import { productModel } from './model/productModel';
@@ -31,6 +32,12 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(bodyParser.json());
