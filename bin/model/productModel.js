@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.productModel = void 0;
 const sequelize_1 = require("sequelize");
 const index_1 = __importDefault(require("../config/index"));
+const cartModel_1 = require("./cartModel");
 const sequelize = (0, index_1.default)();
 exports.productModel = sequelize.define('products', {
     id: {
@@ -45,3 +46,5 @@ exports.productModel = sequelize.define('products', {
 sequelize.sync({ alter: false }).then(() => {
     console.log("poduct model Connected");
 });
+exports.productModel.hasMany(cartModel_1.cartModel, { as: 'orders' });
+cartModel_1.cartModel.belongsTo(exports.productModel, { foreignKey: 'productId', targetKey: 'id' });

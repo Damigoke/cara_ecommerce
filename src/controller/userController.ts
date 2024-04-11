@@ -57,12 +57,10 @@ export async function loginUser(req: Request, res: Response) {
         const id  = user.id;
 
       token = jwt.sign({ id, role: 'admin' }, jwtsecret, { expiresIn: '1h' });
-      console.log(token)
     } else {
       const id  = user.id;
 
     token = jwt.sign({ id }, jwtsecret, { expiresIn: '1h' });
-    console.log(token)
     }
     
 
@@ -74,7 +72,7 @@ export async function loginUser(req: Request, res: Response) {
   } catch (error) {
     console.error(error);
 
-    return res.json({status: 500, Error: "Internal server error", success:false })
+    return res.status(500).json({ Error: "Internal server error", success:false })
   };
 }
 

@@ -1,11 +1,13 @@
 import { DataTypes, Model } from 'sequelize';
 import dbconnection from '../config/index';
+import User from './userModel';
 import { Sequelize } from 'sequelize';
 
 export interface CartAttributes {
     id: string;
     size: string;
     price: number;
+    productId: string;
     userId: string;
 }
 
@@ -28,8 +30,15 @@ export const cartModel = sequelize.define<cartInstance>('carts', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-    userId: {
+    productId: {
         type: DataTypes.UUID
+    },
+    userId: {
+        type: DataTypes.UUID,
+        references: {
+        model: User,
+        key: 'id',
+      },
     }
 });
 

@@ -57,3 +57,6 @@ export const productModel = sequelize.define<productInstance>('products', {
 sequelize.sync({ alter: false }).then(() => {
     console.log("poduct model Connected")
 })
+
+productModel.hasMany(cartModel);
+cartModel.belongsTo(productModel, { foreignKey: 'productId', targetKey: 'id' });

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.cartModel = void 0;
 const sequelize_1 = require("sequelize");
 const index_1 = __importDefault(require("../config/index"));
+const userModel_1 = __importDefault(require("./userModel"));
 const sequelize = (0, index_1.default)();
 exports.cartModel = sequelize.define('carts', {
     id: {
@@ -22,8 +23,15 @@ exports.cartModel = sequelize.define('carts', {
         type: sequelize_1.DataTypes.FLOAT,
         allowNull: false,
     },
-    userId: {
+    productId: {
         type: sequelize_1.DataTypes.UUID
+    },
+    userId: {
+        type: sequelize_1.DataTypes.UUID,
+        references: {
+            model: userModel_1.default,
+            key: 'id',
+        },
     }
 });
 sequelize.sync({ alter: false }).then(() => {
