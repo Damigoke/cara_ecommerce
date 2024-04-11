@@ -8,10 +8,9 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 
-// Multer configuration for file upload
 const storage = multer.diskStorage({
     destination: function (req: any, file: any, cb: (arg0: null, arg1: string) => void) {
-        const uploadDir = './uploads'; // Define your upload directory
+        const uploadDir = './uploads';
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir);
         }
@@ -30,9 +29,7 @@ export async function CreateProduct(req: Request | any, res: Response) {
         const verified = req.user as { [key: string]: string };
         const id = uuidv4();
         const { name, brand, category, description, price } = req.body;
-
-        // Assuming 'images' is the name of the field for the image files in your form
-        const image = req.file.filename // Access filenames assigned by multer
+        const image = req.file.filename
 
         const productRecord = await productModel.create({
             id,
@@ -54,8 +51,7 @@ export async function CreateProduct(req: Request | any, res: Response) {
     }
 }
 
-// Route handler with multer middleware for image upload
-export const uploadProductImages = upload.single('image');; // Change 'images' to the field name used in your HTML form
+export const uploadProductImages = upload.single('image');
  
 
 export async function getProduct(req: Request, res: Response) {

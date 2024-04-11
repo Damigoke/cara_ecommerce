@@ -4,14 +4,14 @@ const sequelize_1 = require("sequelize");
 const config_1 = require("./config");
 function dbconnection() {
     const sslOptions = {
-        rejectUnauthorized: false // Set rejectUnauthorized to true
+        rejectUnauthorized: true // Set rejectUnauthorized to true
     };
-    const sequelize = new sequelize_1.Sequelize(config_1.DB_URL, {
+    console.log(config_1.DATABASE_URL);
+    const sequelize = new sequelize_1.Sequelize(config_1.DATABASE_URL, {
         dialect: "mysql",
         dialectOptions: {
             ssl: sslOptions
         },
-        // timezone: '+00:00',
     });
     sequelize.authenticate()
         .then(() => {

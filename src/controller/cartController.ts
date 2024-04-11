@@ -1,14 +1,15 @@
 import { cartModel } from "../model/cartModel";
+import { productModel } from "../model/productModel";
+import User from "../model/userModel"
 import { createOrderSchema, alternative } from './../utill/utill';
 import express, { Request, Response, NextFunction } from 'express';
 import {v4 as uuidv4} from 'uuid';
 
 export async function CreateOrder(req: Request | any, res: Response) { 
-    console.log("Halleluyah")
-    try {
+  try {
+        const { productIds } = req.query
         const verified = req.user as { [key: string]: string };
         const id = uuidv4();
-        console.log(id)
         const { size, price } = req.body;
         const validResult = createOrderSchema.validate(req.body, alternative)
             if(validResult.error){
@@ -17,13 +18,22 @@ export async function CreateOrder(req: Request | any, res: Response) {
         const cartRecord = await cartModel.create({
             id,
             size,
-            price,
-            userId: verified?.id
+          price,
+          productId: productIds,
+          userId: verified?.id
         })
-          console.log(cartRecord)
-        const allcart = await cartModel.findAll()
+            const allcart = await cartModel.findAll({
+              include: [
+                {
+                  model: productModel
+                },
+                {
+                  model: User
+                }
+              ]
+            })
       
-        return res.status(200).json({ message: 'Order created sucessfully', cartRecord })
+        return res.status(200).json({ message: 'Order created sucessfully', allcart })
     } catch (error) { 
         console.log(error);
         res.status(500).json({ message: 'Invalid Server Error'})

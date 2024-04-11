@@ -51,4 +51,7 @@ sequelize.sync({ alter: false }).then(() => {
 User.hasMany(productModel, { as: 'products' });
 productModel.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 
+User.hasMany(cartModel, { as: 'order' });
+cartModel.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
+
 export default User;

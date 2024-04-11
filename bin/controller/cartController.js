@@ -2,11 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAllOrder = exports.deleteOrder = exports.getOrder = exports.CreateOrder = void 0;
 const cartModel_1 = require("../model/cartModel");
+const productModel_1 = require("../model/productModel");
 const utill_1 = require("./../utill/utill");
 const uuid_1 = require("uuid");
 async function CreateOrder(req, res) {
     console.log("Halleluyah");
     try {
+        const { productIds } = req.query;
+        console.log(productIds);
         const verified = req.user;
         const id = (0, uuid_1.v4)();
         console.log(id);
@@ -19,11 +22,19 @@ async function CreateOrder(req, res) {
             id,
             size,
             price,
+            productId: productIds,
             userId: verified?.id
         });
-        console.log(cartRecord);
-        const allcart = await cartModel_1.cartModel.findAll();
-        return res.status(200).json({ message: 'Order created sucessfully', cartRecord });
+        const allcart = await cartModel_1.cartModel.findAll({
+            include: [
+                {
+                    model: productModel_1.productModel,
+                    as: 'orders'
+                }
+            ]
+        });
+        console.log(allcart);
+        return res.status(200).json({ message: 'Order created sucessfully', allcart });
     }
     catch (error) {
         console.log(error);
