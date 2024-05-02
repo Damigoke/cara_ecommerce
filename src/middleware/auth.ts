@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from 'jsonwebtoken';
 import User  from "../model/userModel";
 import { jwtsecret } from '../config/config';
+import path from "path";
 
 
 export async function auth(req: Request | any, res: Response, next: NextFunction) {
@@ -35,4 +36,19 @@ export async function auth(req: Request | any, res: Response, next: NextFunction
     } catch (err) {
         return res.status(400).send("User not Logged in");
     }
+}
+
+export function getContentType(filePath: string) {
+  const ext = path.extname(filePath).toLowerCase();
+  switch (ext) {
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.png':
+      return 'image/png';
+    case '.gif':
+      return 'image/gif';
+    default:
+      return 'application/octet-stream';
+  }
 }

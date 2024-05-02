@@ -10,7 +10,7 @@ const cartModel_1 = require("./cartModel");
 const sequelize = (0, index_1.default)();
 exports.productModel = sequelize.define('products', {
     id: {
-        type: sequelize_1.DataTypes.UUID,
+        type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
         allowNull: false
@@ -20,10 +20,6 @@ exports.productModel = sequelize.define('products', {
         allowNull: false,
     },
     image: {
-        type: sequelize_1.DataTypes.STRING,
-        unique: true
-    },
-    brand: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },
@@ -46,5 +42,5 @@ exports.productModel = sequelize.define('products', {
 sequelize.sync({ alter: false }).then(() => {
     console.log("poduct model Connected");
 });
-exports.productModel.hasMany(cartModel_1.cartModel, { as: 'orders' });
+exports.productModel.hasMany(cartModel_1.cartModel);
 cartModel_1.cartModel.belongsTo(exports.productModel, { foreignKey: 'productId', targetKey: 'id' });

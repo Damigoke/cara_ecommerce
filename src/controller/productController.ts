@@ -1,134 +1,234 @@
-import { updateProductSchema, alternative } from './../utill/utill';
-import express, { Request, Response, NextFunction } from 'express';
-import {v4 as uuidv4} from 'uuid';
-import { productModel } from '../model/productModel';
-// import login from '../model/userModel';
+import { updateProductSchema, alternative } from "./../utill/utill";
+import express, { Request, Response, NextFunction } from "express";
+import { v4 as uuidv4 } from "uuid";
+import { productModel } from "../model/productModel";
+import api from "../config/config";
 
-import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
+import multer from "multer";
+import fs from "fs";
+import path from "path";
 
 const storage = multer.diskStorage({
-    destination: function (req: any, file: any, cb: (arg0: null, arg1: string) => void) {
-        const uploadDir = './uploads';
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req: any, file: { originalname: string; }, cb: (arg0: null, arg1: string) => void) {
-        const ext = path.extname(file.originalname);
-        cb(null, uuidv4() + ext);
+  destination: function (
+    req: any,
+    file: any,
+    cb: (arg0: null, arg1: string) => void
+  ) {
+    const uploadDir = "uploads";
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
     }
+    cb(null, uploadDir);
+  },
+  filename: function (
+    req: any,
+    file: { originalname: string },
+    cb: (arg0: null, arg1: string) => void
+  ) {
+    const ext = path.extname(file.originalname);
+    cb(null, uuidv4() + ext);
+  },
 });
 
 const upload = multer({ storage: storage });
-
-export async function CreateProduct(req: Request | any, res: Response) {
-    try {
-        const verified = req.user as { [key: string]: string };
-        const id = uuidv4();
-        const { name, brand, category, description, price } = req.body;
-        const image = req.file.filename
-
-        const productRecord = await productModel.create({
-            id,
-            name,
-            image,
-            brand,
-            category,
-            description: description.toString(), // Convert description to a string
-            price: parseFloat(price),
-            userId: verified?.id
-        });
-
-        const allProducts = await productModel.findAll();
-
-        return res.status(200).json({ message: 'Product created successfully', allProducts });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
+export async function allWooCommerceProducts(
+  req: Request | any,
+  res: Response
+) {
+  try {
+    const response = await api.get("products");
+    res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 }
 
-export const uploadProductImages = upload.single('image');
- 
+async function callWooCommerceEndpoint(productId: number) {
+  try {
+    const response = await api.get(`products/${productId}`);
+    const productIds = response.data.id;
+    // Return the product ID along with the response data
+    return { productIds };
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-export async function getProduct(req: Request, res: Response) {
-     try {
-       
-        const limit = req.query?.limit as number | undefined;
-        const offset = req.query?.offset as number | undefined
-     const users = await productModel.findAndCountAll({
-        limit: limit,
-        offset: offset
-     });
-    return res.status(200).json({msg: "You have successfully retrieve all data", data: users.rows, count: users.count, success: true});
-      } catch (error) {
-       console.error(error);
-    
-     return res.status(500).json({ success: false });
-       }
-    }
+async function createproductEndpoint(data: any) {
+  try {
+    const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
+    const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+    const _method = "POST";
+    const response = await api.post(
+      `products?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`,
+      data
+    );
+    const responseData = response.data;
+    return responseData;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function createproduct(req: Request | any, res: Response) {
+  try {
+    const data = req.body;
+    const verified = req.user as { [key: string]: string };
+    const productResult = await createproductEndpoint(data);
+    const {
+      id,
+      name,
+      images,
+      categories,
+      description,
+      regular_price,
+    } = productResult;
+
+    const imagesString = images
+      .map((image: { src: string }) => image.src)
+      .join(",");
+    const category = categories
+      .map((category: { name: string }) => category.name)
+      .join(",");
+
+    await productModel.create({
+      id,
+      name,
+      image: imagesString,
+      category: category,
+      description: description,
+      price: parseFloat(regular_price),
+      userId: verified?.id,
+    });
+    res.json(productResult);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+async function updateproductEndpoint(data: any, productId: number) {
+  try {
+    const id = await callWooCommerceEndpoint(productId);
+    console.log(id);
+    const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
+    const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+    const _method = "PUT";
+    const response = await api.put(
+      `products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function updateproduct(req: Request | any, res: Response) {
+  try {
+    const productId = req.params.productId;
+    console.log(productId);
+    const data = req.body;
+    const updateProductResult = await updateproductEndpoint(data, productId);
+    const {
+      name,
+      images,
+      categories,
+      description,
+      regular_price,
+    } = updateProductResult;
+    const imagesString = images
+      .map((image: { src: string }) => image.src)
+      .join(",");
+    const category = categories
+      .map((category: { name: string }) => category.name)
+      .join(",");
+    const updatedProduct = await productModel.update(
+      {
+        name,
+        image: imagesString,
+        category,
+        description,
+        price: regular_price,
+      },
+      { where: { id: productId } }
+    );
+    res.json(updateProductResult);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+async function deleteproductEndpoint(productId: any) {
+  try {
+    console.log(productId);
+    const id = await callWooCommerceEndpoint(productId);
+    console.log(id);
+    const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
+    const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+    const _method = "DELETE";
+    const response = await api.delete(
+      `products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`,
+      {
+        force: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteproduct(req: Request | any, res: Response) {
+  try {
+    const productId = req.params.productId;
+    const deletedProduct = await deleteproductEndpoint(productId);
+    await productModel.destroy({
+      where: { id: productId },
+    });
+    res.json(deletedProduct);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+const uploadProductImages = upload.single("image");
+
+// export async function getProduct(req: Request, res: Response) {
+//     try {
+//         const limit = req.query?.limit as number | undefined;
+//         const offset = req.query?.offset as number | undefined;
+
+//         const products = await productModel.findAll({
+//             limit: limit,
+//             offset: offset
+//         });
+
+//         return res.status(200).json(products);
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ success: false });
+//     }
+// }
 
 
-    export async function UpdateProduct(req:Request, res:Response){
-        try {
-            const id = req.params.id
+// export async function deleteAllProduct(req: Request, res: Response) {
+//     try {
+//     const products = await productModel.findAll();
+//     if(!products || products.length === 0){
+//         return res.status(400).json({
+//             msg: "Cannot find the user"
+//         })
+//     }
+//     const deleteProduct = await productModel.destroy({ where: {} });
 
+//    return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted all the product", success: true });
+//      } catch (error) {
+//       console.error(error);
 
-            const validResult = updateProductSchema.validate(req.body, alternative)
-            if(validResult.error){
-                res.status(400).json({Error:validResult.error.details[0].message})
-            }
-            const updateProduct = await productModel.findOne({where: {id} });
-            if(!updateProduct){
-                res.status(400).json({data: "Cannot Update the Product"})
-            }
-            const updatedProduct = await updateProduct?.update(req.body);
-           return res.status(200).json({ data: updatedProduct, success: true });
-        } catch (error) {
-            console.error(error)
-        return res.status(500).json({ success: false, error });
-        }
-    }
-
-    export async function deleteProduct(req: Request, res: Response) {
-        try {
-          const id = req.params.id;
-        const products = await productModel.findOne({
-            where:{id}
-        });
-        if(!products){
-            return res.status(400).json({
-                msg: "Cannot find the user"
-            })
-        }
-        const deleteProduct = await products.destroy();
-
-       return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted the product", success: true });
-         } catch (error) {
-          console.error(error);
-       
-        return res.status(500).json({ success: false });
-          }
-    }
-       
-    export async function deleteAllProduct(req: Request, res: Response) {
-        try {
-        const products = await productModel.findAll();
-        if(!products || products.length === 0){
-            return res.status(400).json({
-                msg: "Cannot find the user"
-            })
-        }
-        const deleteProduct = await productModel.destroy({ where: {} });
-
-       return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted all the product", success: true });
-         } catch (error) {
-          console.error(error);
-       
-        return res.status(500).json({ success: false });
-          }
-       }
-   
+//     return res.status(500).json({ success: false });
+//       }
+//    }

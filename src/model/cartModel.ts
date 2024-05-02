@@ -4,10 +4,10 @@ import User from './userModel';
 import { Sequelize } from 'sequelize';
 
 export interface CartAttributes {
-    id: string;
-    size: string;
+    id: number;
+    status: string;
     price: number;
-    productId: string;
+    productId: number;
     userId: string;
 }
 
@@ -17,12 +17,12 @@ const sequelize = dbconnection()
 
 export const cartModel = sequelize.define<cartInstance>('carts', {
     id: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
         allowNull: false,
+
     },
-    size: {
+    status: {
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -31,7 +31,7 @@ export const cartModel = sequelize.define<cartInstance>('carts', {
         allowNull: false,
     },
     productId: {
-        type: DataTypes.UUID
+        type: DataTypes.INTEGER
     },
     userId: {
         type: DataTypes.UUID,

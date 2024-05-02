@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.auth = void 0;
+exports.getContentType = exports.auth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const userModel_1 = __importDefault(require("../model/userModel"));
 const config_1 = require("../config/config");
+const path_1 = __importDefault(require("path"));
 async function auth(req, res, next) {
     try {
         const authorization = req.headers.authorization;
@@ -32,3 +33,18 @@ async function auth(req, res, next) {
     }
 }
 exports.auth = auth;
+function getContentType(filePath) {
+    const ext = path_1.default.extname(filePath).toLowerCase();
+    switch (ext) {
+        case '.jpg':
+        case '.jpeg':
+            return 'image/jpeg';
+        case '.png':
+            return 'image/png';
+        case '.gif':
+            return 'image/gif';
+        default:
+            return 'application/octet-stream';
+    }
+}
+exports.getContentType = getContentType;
