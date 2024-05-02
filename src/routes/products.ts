@@ -1,13 +1,13 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { deleteProduct, getProduct, CreateProduct, UpdateProduct, deleteAllProduct, uploadProductImages} from '../controller/productController';
+//import { deleteProduct, CreateProduct, UpdateProduct, uploadProductImages} from '../controller/productController';
 const router = express.Router();
+import { createproduct, allWooCommerceProducts, updateproduct, deleteproduct } from '../controller/productController';
 import { auth } from '../middleware/auth';
 
 /* GET home page. */
-router.post('/createproduct', auth, uploadProductImages, CreateProduct)
-router.get('/getproduct', getProduct)
-router.put('/update-product/:id',auth, UpdateProduct)
-router.delete('/delete-product/:id', auth, deleteProduct)
-router.delete('/delete-product',auth, deleteAllProduct)
+router.get('/createproduct', auth, createproduct)
+router.get('/getproduct', allWooCommerceProducts)
+router.get('/update-product/:productId', updateproduct)
+router.get('/delete-product/:productId', deleteproduct)
 
 export default router;

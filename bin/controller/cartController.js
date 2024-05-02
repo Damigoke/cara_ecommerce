@@ -1,97 +1,136 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAllOrder = exports.deleteOrder = exports.getOrder = exports.CreateOrder = void 0;
+exports.deleteOrder = exports.deleteorder = exports.allWooCommerceOrder = exports.createorder = void 0;
 const cartModel_1 = require("../model/cartModel");
-const productModel_1 = require("../model/productModel");
-const utill_1 = require("./../utill/utill");
-const uuid_1 = require("uuid");
-async function CreateOrder(req, res) {
-    console.log("Halleluyah");
+const config_1 = __importDefault(require("../config/config"));
+// interface OrderData {
+//   id: number;
+//   status: string;
+//   lineItems: any[]; // Assuming lineItems is an array of any type
+// }
+async function orderproductEndpoint(data) {
     try {
-        const { productIds } = req.query;
+        const consumerKey = 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e';
+        const consumerSecret = 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185';
+        const _method = 'POST';
+        const response = await config_1.default.post(`orders?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, data);
+        const responseData = response.data;
+        return responseData;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+async function createorder(req, res) {
+    try {
+        const data = req.body;
+        const productIds = req.params.productIds;
         console.log(productIds);
         const verified = req.user;
-        const id = (0, uuid_1.v4)();
-        console.log(id);
-        const { size, price } = req.body;
-        const validResult = utill_1.createOrderSchema.validate(req.body, utill_1.alternative);
-        if (validResult.error) {
-            res.status(400).json({ Error: validResult.error.details[0].message });
-        }
+        const productResult = await orderproductEndpoint(data);
+        const products = await CreateOrder(data, productIds, verified);
+        console.log(products);
+        res.json(productResult);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.createorder = createorder;
+async function CreateOrder(data, productIds, verified) {
+    try {
+        const { id, status, line_items } = await orderproductEndpoint(data);
+        const lineItems = line_items.map((line_item) => line_item.price).join(',');
         const cartRecord = await cartModel_1.cartModel.create({
             id,
-            size,
-            price,
+            status,
+            price: parseFloat(lineItems),
             productId: productIds,
             userId: verified?.id
         });
-        const allcart = await cartModel_1.cartModel.findAll({
-            include: [
-                {
-                    model: productModel_1.productModel,
-                    as: 'orders'
-                }
-            ]
-        });
-        console.log(allcart);
-        return res.status(200).json({ message: 'Order created sucessfully', allcart });
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Invalid Server Error' });
-    }
-}
-exports.CreateOrder = CreateOrder;
-async function getOrder(req, res) {
-    try {
-        const limit = req.query?.limit;
-        const offset = req.query?.offset;
-        const cart = await cartModel_1.cartModel.findAndCountAll({
-            limit: limit,
-            offset: offset
-        });
-        return res.status(200).json({ msg: "You have successfully retrieve all data", data: cart.rows, count: cart.count, success: true });
+        return cartRecord;
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false });
+        throw new Error('Invalid Server Error');
     }
 }
-exports.getOrder = getOrder;
-async function deleteOrder(req, res) {
+// export async function getOrder(req: Request, res: Response) {
+//      try {
+//         const limit = req.query?.limit as number | undefined;
+//         const offset = req.query?.offset as number | undefined
+//      const cart = await cartModel.findAndCountAll({
+//         limit: limit,
+//         offset: offset
+//      });
+//     return res.status(200).json({msg: "You have successfully retrieve all data", data: cart.rows, count: cart.count, success: true});
+//       } catch (error) {
+//        console.error(error);
+//      return res.status(500).json({ success: false });
+//        }
+// }
+async function allWooCommerceOrder(req, res) {
     try {
-        const id = req.params.id;
-        const carts = await cartModel_1.cartModel.findOne({
-            where: { id }
-        });
-        if (!carts) {
-            return res.status(400).json({
-                msg: "Cannot find the user"
-            });
-        }
-        const deleteCart = await carts.destroy();
-        return res.status(200).json({ data: deleteCart, msg: "You have successfully deleted the product", success: true });
+        const response = await config_1.default.get('orders');
+        res.json(response.data);
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false });
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.allWooCommerceOrder = allWooCommerceOrder;
+async function singleWooCommerceEndpoint(id) {
+    try {
+        const response = await config_1.default.get(`orders/${id}`);
+        const productId = response.data.id;
+        // Return the product ID along with the response data
+        return { productId };
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+async function deleteproductEndpoint(productId) {
+    try {
+        const id = await singleWooCommerceEndpoint(productId);
+        console.log("id ;", id);
+        const consumerKey = 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e';
+        const consumerSecret = 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185';
+        const _method = 'DELETE';
+        const response = await config_1.default.delete(`orders/${id?.productId}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, {
+            force: true
+        });
+        return response.data;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+async function deleteorder(req, res) {
+    try {
+        const productId = req.params.productId;
+        const deletedProduct = await deleteproductEndpoint(productId);
+        const deletedProducts = await deleteOrder(productId);
+        res.json({ message: "You have successfully delete an order", data: deletedProduct });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.deleteorder = deleteorder;
+async function deleteOrder(productId) {
+    try {
+        const deleteCart = await cartModel_1.cartModel.destroy({ where: { id: productId } });
+        return deleteCart;
+    }
+    catch (error) {
+        console.error(error);
     }
 }
 exports.deleteOrder = deleteOrder;
-async function deleteAllOrder(req, res) {
-    try {
-        const carts = await cartModel_1.cartModel.findAll();
-        if (!carts || carts.length === 0) {
-            return res.status(400).json({
-                msg: "Cannot find the user"
-            });
-        }
-        const deleteCart = await cartModel_1.cartModel.destroy({ where: {} });
-        return res.status(200).json({ data: deleteCart, msg: "You have successfully deleted all the product", success: true });
-    }
-    catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false });
-    }
-}
-exports.deleteAllOrder = deleteAllOrder;

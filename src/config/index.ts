@@ -1,16 +1,17 @@
 import { Sequelize } from "sequelize";
-import { DATABASE_URL } from "./config";
+//import { DATABASE_URL } from "./config";
+import { DB_URL } from "./config";
 
 function dbconnection() {
   const sslOptions = {
     rejectUnauthorized: true, // Set rejectUnauthorized to true
   };
 
-  const sequelize = new Sequelize(DATABASE_URL, {
+  const sequelize = new Sequelize(DB_URL, {
     dialect: "mysql",
-    dialectOptions: {
-      ssl: sslOptions,
-    },
+    // dialectOptions: {
+    //     ssl: sslOptions
+    // },
   });
 
   sequelize

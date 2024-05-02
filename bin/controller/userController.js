@@ -51,12 +51,10 @@ async function loginUser(req, res) {
         if (user.last_name === 'admin') {
             const id = user.id;
             token = jsonwebtoken_1.default.sign({ id, role: 'admin' }, config_1.jwtsecret, { expiresIn: '1h' });
-            console.log(token);
         }
         else {
             const id = user.id;
             token = jsonwebtoken_1.default.sign({ id }, config_1.jwtsecret, { expiresIn: '1h' });
-            console.log(token);
         }
         const loginValidation = await bcrypt_1.default.compare(password, user.password);
         if (loginValidation) {
@@ -66,7 +64,7 @@ async function loginUser(req, res) {
     }
     catch (error) {
         console.error(error);
-        return res.json({ status: 500, Error: "Internal server error", success: false });
+        return res.status(500).json({ Error: "Internal server error", success: false });
     }
     ;
 }

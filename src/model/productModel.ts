@@ -4,10 +4,9 @@ import { Sequelize } from 'sequelize';
 import { cartModel } from './cartModel';
 
 export interface ProductAttributes {
-    id: string;
+    id: number;
     name: string;
     image: string;
-    brand: string;
     category: string;
     description: string;
     price: number;
@@ -20,7 +19,7 @@ const sequelize = dbconnection()
 
 export const productModel = sequelize.define<productInstance>('products', {
     id: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4, 
         allowNull: false
@@ -30,10 +29,6 @@ export const productModel = sequelize.define<productInstance>('products', {
         allowNull: false,
     },
     image: {
-        type: DataTypes.STRING,
-        unique: true
-    },
-    brand: {
         type: DataTypes.STRING,
         allowNull: false,
     },

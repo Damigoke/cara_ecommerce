@@ -3,18 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAllProduct = exports.deleteProduct = exports.UpdateProduct = exports.getProduct = exports.uploadProductImages = exports.CreateProduct = void 0;
-const utill_1 = require("./../utill/utill");
+exports.deleteproduct = exports.updateproduct = exports.createproduct = exports.allWooCommerceProducts = void 0;
 const uuid_1 = require("uuid");
 const productModel_1 = require("../model/productModel");
+const config_1 = __importDefault(require("../config/config"));
 // import login from '../model/userModel';
 const multer_1 = __importDefault(require("multer"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-// Multer configuration for file upload
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
-        const uploadDir = './uploads'; // Define your upload directory
+        const uploadDir = 'uploads';
         if (!fs_1.default.existsSync(uploadDir)) {
             fs_1.default.mkdirSync(uploadDir);
         }
@@ -26,105 +25,184 @@ const storage = multer_1.default.diskStorage({
     }
 });
 const upload = (0, multer_1.default)({ storage: storage });
-async function CreateProduct(req, res) {
+async function allWooCommerceProducts(req, res) {
     try {
+        const response = await config_1.default.get('products');
+        res.json(response.data);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.allWooCommerceProducts = allWooCommerceProducts;
+async function callWooCommerceEndpoint(productId) {
+    try {
+        const response = await config_1.default.get(`products/${productId}`);
+        const productIds = response.data.id;
+        // Return the product ID along with the response data
+        return { productIds };
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+async function createproductEndpoint(data) {
+    try {
+        const consumerKey = 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e';
+        const consumerSecret = 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185';
+        const _method = 'POST';
+        const response = await config_1.default.post(`products?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, data);
+        const responseData = response.data;
+        return responseData;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+async function createproduct(req, res) {
+    try {
+        const data = req.body;
         const verified = req.user;
-        const id = (0, uuid_1.v4)();
-        const { name, brand, category, description, price } = req.body;
-        // Assuming 'images' is the name of the field for the image files in your form
-        const image = req.file.filename; // Access filenames assigned by multer
+        const productResult = await createproductEndpoint(data);
+        const products = await CreateProduct(data, verified);
+        console.log(products);
+        res.json(productResult);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.createproduct = createproduct;
+async function updateproductEndpoint(data, productId) {
+    try {
+        const id = await callWooCommerceEndpoint(productId);
+        console.log(id);
+        const consumerKey = 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e';
+        const consumerSecret = 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185';
+        const _method = 'PUT';
+        const response = await config_1.default.put(`products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, data);
+        return response.data;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+async function updateproduct(req, res) {
+    try {
+        const productId = req.params.productId;
+        console.log(productId);
+        const data = req.body;
+        const updateProductResult = await updateproductEndpoint(data, productId);
+        const updatedProducts = await UpdateProduct(data, productId);
+        res.json(updateProductResult);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.updateproduct = updateproduct;
+async function deleteproductEndpoint(productId) {
+    try {
+        console.log(productId);
+        const id = await callWooCommerceEndpoint(productId);
+        console.log(id);
+        const consumerKey = 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e';
+        const consumerSecret = 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185';
+        const _method = 'DELETE';
+        const response = await config_1.default.delete(`products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, {
+            force: true
+        });
+        return response.data;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+async function deleteproduct(req, res) {
+    try {
+        const productId = req.params.productId;
+        const deletedProduct = await deleteproductEndpoint(productId);
+        const deletedProducts = await deleteProduct(productId);
+        res.json(deletedProduct);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.deleteproduct = deleteproduct;
+async function CreateProduct(data, verified) {
+    try {
+        //const { result } = await createproduct(req, res);
+        const { id, name, images, categories, description, regular_price } = await createproductEndpoint(data);
+        const imagesString = images.map((image) => image.src).join(',');
+        const category = categories.map((category) => category.name).join(',');
         const productRecord = await productModel_1.productModel.create({
             id,
             name,
-            image,
-            brand,
-            category,
-            description: description.toString(), // Convert description to a string
-            price: parseFloat(price),
+            image: imagesString,
+            category: category,
+            description: description,
+            price: parseFloat(regular_price),
             userId: verified?.id
         });
-        const allProducts = await productModel_1.productModel.findAll();
-        return res.status(200).json({ message: 'Product created successfully', allProducts });
+        return productRecord;
     }
     catch (error) {
         console.log(error);
-        return res.status(500).json({ message: 'Internal server error' });
     }
 }
-exports.CreateProduct = CreateProduct;
-// Route handler with multer middleware for image upload
-exports.uploadProductImages = upload.single('image');
-; // Change 'images' to the field name used in your HTML form
-async function getProduct(req, res) {
+const uploadProductImages = upload.single('image');
+// export async function getProduct(req: Request, res: Response) {
+//     try {
+//         const limit = req.query?.limit as number | undefined;
+//         const offset = req.query?.offset as number | undefined;
+//         const products = await productModel.findAll({
+//             limit: limit,
+//             offset: offset
+//         });
+//         return res.status(200).json(products);
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ success: false });
+//     }
+// }
+async function UpdateProduct(data, productId) {
     try {
-        const limit = req.query?.limit;
-        const offset = req.query?.offset;
-        const users = await productModel_1.productModel.findAndCountAll({
-            limit: limit,
-            offset: offset
-        });
-        return res.status(200).json({ msg: "You have successfully retrieve all data", data: users.rows, count: users.count, success: true });
+        const { name, images, categories, description, regular_price } = await updateproductEndpoint(data, productId);
+        const imagesString = images.map((image) => image.src).join(',');
+        const category = categories.map((category) => category.name).join(',');
+        const updatedProduct = await productModel_1.productModel.update({ name, image: imagesString, category, description, price: regular_price, }, { where: { id: productId, } });
+        return updatedProduct;
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false });
     }
 }
-exports.getProduct = getProduct;
-async function UpdateProduct(req, res) {
+async function deleteProduct(productId) {
     try {
-        const id = req.params.id;
-        const validResult = utill_1.updateProductSchema.validate(req.body, utill_1.alternative);
-        if (validResult.error) {
-            res.status(400).json({ Error: validResult.error.details[0].message });
-        }
-        const updateProduct = await productModel_1.productModel.findOne({ where: { id } });
-        if (!updateProduct) {
-            res.status(400).json({ data: "Cannot Update the Product" });
-        }
-        const updatedProduct = await updateProduct?.update(req.body);
-        return res.status(200).json({ data: updatedProduct, success: true });
+        const deleteProduct = await productModel_1.productModel.destroy({ where: { id: productId } });
+        return deleteProduct;
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false, error });
     }
 }
-exports.UpdateProduct = UpdateProduct;
-async function deleteProduct(req, res) {
-    try {
-        const id = req.params.id;
-        const products = await productModel_1.productModel.findOne({
-            where: { id }
-        });
-        if (!products) {
-            return res.status(400).json({
-                msg: "Cannot find the user"
-            });
-        }
-        const deleteProduct = await products.destroy();
-        return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted the product", success: true });
-    }
-    catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false });
-    }
-}
-exports.deleteProduct = deleteProduct;
-async function deleteAllProduct(req, res) {
-    try {
-        const products = await productModel_1.productModel.findAll();
-        if (!products || products.length === 0) {
-            return res.status(400).json({
-                msg: "Cannot find the user"
-            });
-        }
-        const deleteProduct = await productModel_1.productModel.destroy({ where: {} });
-        return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted all the product", success: true });
-    }
-    catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false });
-    }
-}
-exports.deleteAllProduct = deleteAllProduct;
+// export async function deleteAllProduct(req: Request, res: Response) {
+//     try {
+//     const products = await productModel.findAll();
+//     if(!products || products.length === 0){
+//         return res.status(400).json({
+//             msg: "Cannot find the user"
+//         })
+//     }
+//     const deleteProduct = await productModel.destroy({ where: {} });
+//    return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted all the product", success: true });
+//      } catch (error) {
+//       console.error(error);
+//     return res.status(500).json({ success: false });
+//       }
+//    }
