@@ -30,10 +30,17 @@ async function createorder(req, res) {
         const productIds = req.params.productIds;
         console.log(productIds);
         const verified = req.user;
-        const productResult = await orderproductEndpoint(data);
-        const products = await CreateOrder(data, productIds, verified);
-        console.log(products);
-        res.json(productResult);
+        const result = await orderproductEndpoint(data);
+        const { id, status, line_items } = result;
+        const lineItems = line_items.map((line_item) => line_item.price).join(',');
+        await cartModel_1.cartModel.create({
+            id,
+            status,
+            price: parseFloat(lineItems),
+            productId: productIds,
+            userId: verified?.id
+        });
+        return res.json(result);
     }
     catch (error) {
         console.error(error);
@@ -41,24 +48,6 @@ async function createorder(req, res) {
     }
 }
 exports.createorder = createorder;
-async function CreateOrder(data, productIds, verified) {
-    try {
-        const { id, status, line_items } = await orderproductEndpoint(data);
-        const lineItems = line_items.map((line_item) => line_item.price).join(',');
-        const cartRecord = await cartModel_1.cartModel.create({
-            id,
-            status,
-            price: parseFloat(lineItems),
-            productId: productIds,
-            userId: verified?.id
-        });
-        return cartRecord;
-    }
-    catch (error) {
-        console.error(error);
-        throw new Error('Invalid Server Error');
-    }
-}
 // export async function getOrder(req: Request, res: Response) {
 //      try {
 //         const limit = req.query?.limit as number | undefined;

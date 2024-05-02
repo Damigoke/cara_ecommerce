@@ -11,6 +11,7 @@ const sequelize = (0, index_1.default)();
 exports.cartModel = sequelize.define('carts', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
+        primaryKey: true,
         allowNull: false,
     },
     status: {
