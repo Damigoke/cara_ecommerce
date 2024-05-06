@@ -10,7 +10,8 @@ const productController_1 = require("../controller/productController");
 const auth_1 = require("../middleware/auth");
 /* GET home page. */
 router.get('/createproduct', auth_1.auth, productController_1.createproduct);
-router.get('/getproduct', productController_1.allWooCommerceProducts);
+router.get('/getAllproduct', productController_1.allWooCommerceProducts);
+router.get('/getproduct', productController_1.getSingleProducts);
 router.get('/update-product/:productId', productController_1.updateproduct);
 router.get('/delete-product/:productId', productController_1.deleteproduct);
 exports.default = router;

@@ -12,7 +12,6 @@ exports.productModel = sequelize.define('products', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
-        defaultValue: sequelize_1.DataTypes.UUIDV4,
         allowNull: false
     },
     name: {
