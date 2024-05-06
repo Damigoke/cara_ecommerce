@@ -52,6 +52,7 @@ export async function getSingleProducts(req: Request | any, res: Response) {
     res.json({ data: response.data });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 

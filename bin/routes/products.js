@@ -11,7 +11,7 @@ const auth_1 = require("../middleware/auth");
 /* GET home page. */
 router.get('/createproduct', auth_1.auth, productController_1.createproduct);
 router.get('/getAllproduct', productController_1.allWooCommerceProducts);
-router.get('/getproduct', productController_1.getSingleProducts);
+router.get('/getproduct/:productId', productController_1.getSingleProducts);
 router.get('/update-product/:productId', productController_1.updateproduct);
 router.get('/delete-product/:productId', productController_1.deleteproduct);
 exports.default = router;
