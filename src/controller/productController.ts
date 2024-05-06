@@ -44,6 +44,18 @@ export async function allWooCommerceProducts(
   }
 }
 
+export async function getSingleProducts(req: Request | any, res: Response) {
+  try {
+      const productId = req.params.productId
+    const response = await api.get(`products/${productId}`);
+    // Return the product ID along with the response data
+    res.json({ data: response.data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 async function callWooCommerceEndpoint(productId: number) {
   try {
     const response = await api.get(`products/${productId}`);
@@ -196,39 +208,3 @@ export async function deleteproduct(req: Request | any, res: Response) {
 }
 
 const uploadProductImages = upload.single("image");
-
-// export async function getProduct(req: Request, res: Response) {
-//     try {
-//         const limit = req.query?.limit as number | undefined;
-//         const offset = req.query?.offset as number | undefined;
-
-//         const products = await productModel.findAll({
-//             limit: limit,
-//             offset: offset
-//         });
-
-//         return res.status(200).json(products);
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ success: false });
-//     }
-// }
-
-
-// export async function deleteAllProduct(req: Request, res: Response) {
-//     try {
-//     const products = await productModel.findAll();
-//     if(!products || products.length === 0){
-//         return res.status(400).json({
-//             msg: "Cannot find the user"
-//         })
-//     }
-//     const deleteProduct = await productModel.destroy({ where: {} });
-
-//    return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted all the product", success: true });
-//      } catch (error) {
-//       console.error(error);
-
-//     return res.status(500).json({ success: false });
-//       }
-//    }

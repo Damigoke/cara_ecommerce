@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteOrder = exports.deleteorder = exports.allWooCommerceOrder = exports.createorder = void 0;
+exports.deleteOrder = exports.deleteorder = exports.getsingleorder = exports.allWooCommerceOrder = exports.createorder = void 0;
 const cartModel_1 = require("../model/cartModel");
 const config_1 = __importDefault(require("../config/config"));
 // interface OrderData {
@@ -73,6 +73,18 @@ async function allWooCommerceOrder(req, res) {
     }
 }
 exports.allWooCommerceOrder = allWooCommerceOrder;
+async function getsingleorder(req, res) {
+    try {
+        const id = req.params.id;
+        const response = await config_1.default.get(`orders/${id}`);
+        res.json({ data: response.data });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.getsingleorder = getsingleorder;
 async function singleWooCommerceEndpoint(id) {
     try {
         const response = await config_1.default.get(`orders/${id}`);

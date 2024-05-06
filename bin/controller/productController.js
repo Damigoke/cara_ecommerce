@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteproduct = exports.updateproduct = exports.createproduct = exports.allWooCommerceProducts = void 0;
+exports.deleteproduct = exports.updateproduct = exports.createproduct = exports.getSingleProducts = exports.allWooCommerceProducts = void 0;
 const uuid_1 = require("uuid");
 const productModel_1 = require("../model/productModel");
 const config_1 = __importDefault(require("../config/config"));
@@ -35,6 +35,19 @@ async function allWooCommerceProducts(req, res) {
     }
 }
 exports.allWooCommerceProducts = allWooCommerceProducts;
+async function getSingleProducts(req, res) {
+    try {
+        const productId = req.params.productId;
+        const response = await config_1.default.get(`products/${productId}`);
+        // Return the product ID along with the response data
+        res.json({ data: response.data });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.getSingleProducts = getSingleProducts;
 async function callWooCommerceEndpoint(productId) {
     try {
         const response = await config_1.default.get(`products/${productId}`);
@@ -163,32 +176,3 @@ async function deleteproduct(req, res) {
 }
 exports.deleteproduct = deleteproduct;
 const uploadProductImages = upload.single("image");
-// export async function getProduct(req: Request, res: Response) {
-//     try {
-//         const limit = req.query?.limit as number | undefined;
-//         const offset = req.query?.offset as number | undefined;
-//         const products = await productModel.findAll({
-//             limit: limit,
-//             offset: offset
-//         });
-//         return res.status(200).json(products);
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ success: false });
-//     }
-// }
-// export async function deleteAllProduct(req: Request, res: Response) {
-//     try {
-//     const products = await productModel.findAll();
-//     if(!products || products.length === 0){
-//         return res.status(400).json({
-//             msg: "Cannot find the user"
-//         })
-//     }
-//     const deleteProduct = await productModel.destroy({ where: {} });
-//    return res.status(200).json({ data: deleteProduct, msg: "You have successfully deleted all the product", success: true });
-//      } catch (error) {
-//       console.error(error);
-//     return res.status(500).json({ success: false });
-//       }
-//    }

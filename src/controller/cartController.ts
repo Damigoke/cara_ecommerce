@@ -79,6 +79,17 @@ export async function allWooCommerceOrder(req: Request | any, res: Response) {
     }
 }
 
+export async function getsingleorder(req: Request | any, res: Response) {
+
+    try {
+        const id = req.params.id
+      const response = await api.get(`orders/${id}`);
+    res.json({ data: response.data });
+    } catch (error: any) {
+     console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
 async function singleWooCommerceEndpoint(id: number) {
 
     try {
