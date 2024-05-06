@@ -53,7 +53,7 @@ export async function loginUser(req: Request, res: Response) {
     }) as unknown as {[key: string]:string};
     
     let token = ""
-    if (user.last_name === 'admin') {
+    if (user.email === 'fopefaokunla@gmail.com') {
         const id  = user.id;
 
       token = jwt.sign({ id, role: 'admin' }, jwtsecret, { expiresIn: '1h' });
