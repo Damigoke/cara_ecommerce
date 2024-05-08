@@ -5,7 +5,7 @@ import { createproduct, allWooCommerceProducts, updateproduct, deleteproduct, ge
 import { auth } from '../middleware/auth';
 
 /* GET home page. */
-router.get('/createproduct', auth, createproduct)
+router.post('/createproduct', auth, createproduct)
 router.get('/getAllproduct', allWooCommerceProducts)
 router.get('/getproduct/:productId', getSingleProducts)
 router.get('/update-product/:productId', updateproduct)
