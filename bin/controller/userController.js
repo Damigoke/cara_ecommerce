@@ -48,7 +48,7 @@ async function loginUser(req, res) {
             where: { email: email }
         });
         let token = "";
-        if (user.last_name === 'admin') {
+        if (user.email === 'fopefaokunla@gmail.com') {
             const id = user.id;
             token = jsonwebtoken_1.default.sign({ id, role: 'admin' }, config_1.jwtsecret, { expiresIn: '1h' });
         }

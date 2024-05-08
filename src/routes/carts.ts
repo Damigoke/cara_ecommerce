@@ -5,7 +5,7 @@ import { auth } from '../middleware/auth';
 const router = express.Router();
 
 
-router.get('/Order/:productIds', auth, createorder);
+router.post('/Order/:productIds', auth, createorder);
 router.get('/get-order', auth, allWooCommerceOrder);
 router.get('/get-order/:id', auth, getsingleorder);
 router.get('/delete-order/:productId', auth, deleteorder)
