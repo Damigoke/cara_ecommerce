@@ -61,6 +61,7 @@ async function callWooCommerceEndpoint(productId) {
 }
 async function createproductEndpoint(data) {
     try {
+        console.log(data);
         const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
         const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
         const _method = "POST";
