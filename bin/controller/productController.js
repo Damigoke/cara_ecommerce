@@ -65,7 +65,7 @@ async function createproductEndpoint(data) {
         const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
         const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
         const _method = "POST";
-        const response = await config_1.default.post(`products?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, data);
+        const response = await config_1.default.post('products', data);
         const responseData = response.data;
         return responseData;
     }
@@ -76,8 +76,29 @@ async function createproductEndpoint(data) {
 async function createproduct(req, res) {
     try {
         const data = req.body;
+        const dd = {
+            name: data.name,
+            type: data.type,
+            regular_price: data.regular_price + "",
+            sale_price: data.sale_price + "",
+            description: data.description,
+            short_description: data.short_description,
+            categories: [
+                {
+                    id: data.category[0].id
+                },
+                {
+                    id: data.category[1].id
+                }
+            ],
+            images: [
+                {
+                    src: data.image[0].src
+                }
+            ]
+        };
         const verified = req.user;
-        const productResult = await createproductEndpoint(data);
+        const productResult = await createproductEndpoint(dd);
         const { id, name, images, categories, description, regular_price, } = productResult;
         const imagesString = images
             .map((image) => image.src)

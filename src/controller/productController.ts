@@ -87,8 +87,34 @@ async function createproductEndpoint(data: any) {
 export async function createproduct(req: Request | any, res: Response) {
   try {
     const data = req.body;
+
+    const Data = {
+  name: data.name,
+  type: data.type,
+  regular_price: data.regular_price+"",
+  sale_price: data.sale_price+"",
+  description: data.description,
+  short_description: data.short_description,
+  categories:[
+    {
+      id: data.categories[0].id
+    },
+    {
+      id:data.categories[1].id
+    }
+  ],
+  images: [
+    {
+      src:data.images[0].src 
+    }
+  ]
+
+    }
+    
+   
+
     const verified = req.user as { [key: string]: string };
-    const productResult = await createproductEndpoint(data);
+    const productResult = await createproductEndpoint(Data);
     const {
       id,
       name,
