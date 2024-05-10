@@ -76,7 +76,7 @@ async function createproductEndpoint(data) {
 async function createproduct(req, res) {
     try {
         const data = req.body;
-        const dd = {
+        const Data = {
             name: data.name,
             type: data.type,
             regular_price: data.regular_price + "",
@@ -85,20 +85,21 @@ async function createproduct(req, res) {
             short_description: data.short_description,
             categories: [
                 {
-                    id: data.category[0].id
+                    id: data.categories[0].id
                 },
                 {
-                    id: data.category[1].id
+                    id: data.categories[1].id
                 }
             ],
             images: [
                 {
-                    src: data.image[0].src
+                    src: data.images[0].src
                 }
             ]
         };
+        console.log(Data);
         const verified = req.user;
-        const productResult = await createproductEndpoint(dd);
+        const productResult = await createproductEndpoint(Data);
         const { id, name, images, categories, description, regular_price, } = productResult;
         const imagesString = images
             .map((image) => image.src)
