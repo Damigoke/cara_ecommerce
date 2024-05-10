@@ -110,9 +110,6 @@ export async function createproduct(req: Request | any, res: Response) {
   ]
 
     }
-    
-   
-
     const verified = req.user as { [key: string]: string };
     const productResult = await createproductEndpoint(Data);
     const {
