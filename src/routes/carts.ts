@@ -5,10 +5,10 @@ import { auth } from '../middleware/auth';
 const router = express.Router();
 
 
-router.post('/Order/:productIds', createorder);
+router.post('/Order/:productIds', auth, createorder);
 router.get('/get-order', allWooCommerceOrder);
-router.get('/get-order/:id', getsingleorder);
-router.get('/delete-order/:productId', deleteorder)
+router.get('/get-order/:id', auth, getsingleorder);
+router.get('/delete-order/:productId', auth, deleteorder)
 // router.delete('/delete-order', auth, deleteAllOrder)
 
 export default router;

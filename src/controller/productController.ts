@@ -4,33 +4,81 @@ import { v4 as uuidv4 } from "uuid";
 import { productModel } from "../model/productModel";
 import api from "../config/config";
 
-import multer from "multer";
-import fs from "fs";
-import path from "path";
+// import multer from "multer";
+// import fs from "fs";
+// import path from "path";
 
-const storage = multer.diskStorage({
-  destination: function (
-    req: any,
-    file: any,
-    cb: (arg0: null, arg1: string) => void
-  ) {
-    const uploadDir = "uploads";
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (
-    req: any,
-    file: { originalname: string },
-    cb: (arg0: null, arg1: string) => void
-  ) {
-    const ext = path.extname(file.originalname);
-    cb(null, uuidv4() + ext);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (
+//     req: any,
+//     file: any,
+//     cb: (arg0: null, arg1: string) => void
+//   ) {
+//     const uploadDir = "uploads";
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir);
+//     }
+//     cb(null, uploadDir);
+//   },
+//   filename: function (
+//     req: any,
+//     file: { originalname: string },
+//     cb: (arg0: null, arg1: string) => void
+//   ) {
+//     const ext = path.extname(file.originalname);
+//     cb(null, uuidv4() + ext);
+//   },
+// });
+//const upload = multer({ storage: storage });
 
-const upload = multer({ storage: storage });
+export async function createcategoryEndpoint(req: Request | any,res: Response) {
+  try {
+    const data = req.body
+    const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
+    const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+    const _method = "POST";
+    const response = await api.post(
+      "products/categories",
+      data
+    );
+    const responseData = response.data;
+    res.json(responseData);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getallCategories(
+  req: Request | any,
+  res: Response
+) {
+  try {
+    const response = await api.get("products/categories");
+    res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+export async function deleteCategoryEndpoint(req: Request | any, res: Response) {
+  try {
+    const { id } = req.params
+    console.log(id);
+    const consumerKey = "ck_e576d6900528be88b08ddda9cfb0c38a8261fc86";
+    const consumerSecret = "cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0";
+    const _method = "DELETE";
+    const response = await api.delete(
+      `products/categories/${id}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`,
+      {
+        force: true,
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+}
 export async function allWooCommerceProducts(
   req: Request | any,
   res: Response
@@ -43,6 +91,8 @@ export async function allWooCommerceProducts(
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
 
 export async function getSingleProducts(req: Request | any, res: Response) {
   try {
@@ -148,8 +198,8 @@ async function updateproductEndpoint(data: any, productId: number) {
   try {
     const id = await callWooCommerceEndpoint(productId);
     console.log(id);
-    const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
-    const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+    const consumerKey = "ck_e576d6900528be88b08ddda9cfb0c38a8261fc86";
+    const consumerSecret = "cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0";
     const _method = "PUT";
     const response = await api.put(
       `products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`,
@@ -202,8 +252,8 @@ async function deleteproductEndpoint(productId: any) {
     console.log(productId);
     const id = await callWooCommerceEndpoint(productId);
     console.log(id);
-    const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
-    const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+    const consumerKey = "ck_e576d6900528be88b08ddda9cfb0c38a8261fc86";
+    const consumerSecret = "cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0";
     const _method = "DELETE";
     const response = await api.delete(
       `products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`,
@@ -229,6 +279,4 @@ export async function deleteproduct(req: Request | any, res: Response) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
-
-const uploadProductImages = upload.single("image");
+  }
