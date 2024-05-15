@@ -9,6 +9,7 @@ const router = express_1.default.Router();
 const productController_1 = require("../controller/productController");
 /* GET home page. */
 router.post('/createproduct', productController_1.createproduct);
+router.post('/createcategory', productController_1.createcategoryEndpoint);
 router.get('/getAllproduct', productController_1.allWooCommerceProducts);
 router.get('/getproduct/:productId', productController_1.getSingleProducts);
 router.get('/update-product/:productId', productController_1.updateproduct);

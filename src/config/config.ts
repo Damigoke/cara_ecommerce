@@ -15,13 +15,13 @@ export const jwtsecret = process.env.JWT_SECRET as string;
   
 // Create a new instance of the WooCommerce API 
 const api = new WooCommerceRestApi({ 
-    url: "https://woo-buttery-kawaii-chaos.wpcomstaging.com/", 
+    url: "https://woo-impossibly-dependable-whispers.wpcomstaging.com/", 
   
      // Enter your api key 
-    consumerKey: 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e', 
+    consumerKey: 'ck_e576d6900528be88b08ddda9cfb0c38a8261fc86', 
     
     // Enter your secret given by woocommerce 
-    consumerSecret: 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185', 
+    consumerSecret: 'cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0', 
     version: "wc/v3" // Set the API version 
 }); 
 export default api;

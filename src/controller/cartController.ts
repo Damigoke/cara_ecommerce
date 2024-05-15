@@ -14,8 +14,8 @@ import api from "../config/config";
 // }
 async function orderproductEndpoint(data: any) {
     try {
-        const consumerKey = 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e' 
-        const consumerSecret = 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185'
+        const consumerKey = 'ck_e576d6900528be88b08ddda9cfb0c38a8261fc86' 
+        const consumerSecret = 'cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0'
         const _method = 'POST'
         const response = await api.post(`orders?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, data);
         const responseData = response.data;
@@ -106,8 +106,8 @@ async function deleteproductEndpoint(productId: number) {
     try {
         const id = await singleWooCommerceEndpoint(productId);
         console.log("id ;", id)
-        const consumerKey = 'ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e'
-        const consumerSecret = 'cs_0af5d1b608af89c023c529637a66bdcfe1d11185'
+        const consumerKey = 'ck_e576d6900528be88b08ddda9cfb0c38a8261fc86'
+        const consumerSecret = 'cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0'
         const _method = 'DELETE'
         const response = await api.delete(`orders/${id?.productId}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, {
                             force: true

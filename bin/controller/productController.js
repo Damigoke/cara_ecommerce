@@ -3,27 +3,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteproduct = exports.updateproduct = exports.createproduct = exports.getSingleProducts = exports.allWooCommerceProducts = void 0;
-const uuid_1 = require("uuid");
+exports.deleteproduct = exports.updateproduct = exports.createproduct = exports.getSingleProducts = exports.allWooCommerceProducts = exports.createcategoryEndpoint = void 0;
 const productModel_1 = require("../model/productModel");
 const config_1 = __importDefault(require("../config/config"));
-const multer_1 = __importDefault(require("multer"));
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
-const storage = multer_1.default.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = "uploads";
-        if (!fs_1.default.existsSync(uploadDir)) {
-            fs_1.default.mkdirSync(uploadDir);
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const ext = path_1.default.extname(file.originalname);
-        cb(null, (0, uuid_1.v4)() + ext);
-    },
-});
-const upload = (0, multer_1.default)({ storage: storage });
+// import multer from "multer";
+// import fs from "fs";
+// import path from "path";
+// const storage = multer.diskStorage({
+//   destination: function (
+//     req: any,
+//     file: any,
+//     cb: (arg0: null, arg1: string) => void
+//   ) {
+//     const uploadDir = "uploads";
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir);
+//     }
+//     cb(null, uploadDir);
+//   },
+//   filename: function (
+//     req: any,
+//     file: { originalname: string },
+//     cb: (arg0: null, arg1: string) => void
+//   ) {
+//     const ext = path.extname(file.originalname);
+//     cb(null, uuidv4() + ext);
+//   },
+// });
+//const upload = multer({ storage: storage });
+async function createcategoryEndpoint(req, res) {
+    try {
+        const data = req.body;
+        const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
+        const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+        const _method = "POST";
+        const response = await config_1.default.post('products/categories', data);
+        const responseData = response.data;
+        return responseData;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+exports.createcategoryEndpoint = createcategoryEndpoint;
 async function allWooCommerceProducts(req, res) {
     try {
         const response = await config_1.default.get("products");
@@ -97,7 +119,6 @@ async function createproduct(req, res) {
                 }
             ]
         };
-        console.log(Data);
         const verified = req.user;
         const productResult = await createproductEndpoint(Data);
         const { id, name, images, categories, description, regular_price, } = productResult;
@@ -128,8 +149,8 @@ async function updateproductEndpoint(data, productId) {
     try {
         const id = await callWooCommerceEndpoint(productId);
         console.log(id);
-        const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
-        const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+        const consumerKey = "ck_e576d6900528be88b08ddda9cfb0c38a8261fc86";
+        const consumerSecret = "cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0";
         const _method = "PUT";
         const response = await config_1.default.put(`products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, data);
         return response.data;
@@ -171,8 +192,8 @@ async function deleteproductEndpoint(productId) {
         console.log(productId);
         const id = await callWooCommerceEndpoint(productId);
         console.log(id);
-        const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
-        const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
+        const consumerKey = "ck_e576d6900528be88b08ddda9cfb0c38a8261fc86";
+        const consumerSecret = "cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0";
         const _method = "DELETE";
         const response = await config_1.default.delete(`products/${id?.productIds}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, {
             force: true,
@@ -198,4 +219,3 @@ async function deleteproduct(req, res) {
     }
 }
 exports.deleteproduct = deleteproduct;
-const uploadProductImages = upload.single("image");
