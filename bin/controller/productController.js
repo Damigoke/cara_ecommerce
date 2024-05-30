@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteproduct = exports.updateproduct = exports.createproduct = exports.getSingleProducts = exports.allWooCommerceProducts = exports.createcategoryEndpoint = void 0;
+exports.deleteproduct = exports.updateproduct = exports.createproduct = exports.getSingleProducts = exports.allWooCommerceProducts = exports.deleteCategoryEndpoint = exports.getallCategories = exports.createcategoryEndpoint = void 0;
 const productModel_1 = require("../model/productModel");
 const config_1 = __importDefault(require("../config/config"));
 // import multer from "multer";
@@ -37,15 +37,43 @@ async function createcategoryEndpoint(req, res) {
         const consumerKey = "ck_221132231c8f0ef300cff6f468e047f1d8fa0b7e";
         const consumerSecret = "cs_0af5d1b608af89c023c529637a66bdcfe1d11185";
         const _method = "POST";
-        const response = await config_1.default.post('products/categories', data);
+        const response = await config_1.default.post("products/categories", data);
         const responseData = response.data;
-        return responseData;
+        res.json(responseData);
     }
     catch (error) {
         console.error(error);
     }
 }
 exports.createcategoryEndpoint = createcategoryEndpoint;
+async function getallCategories(req, res) {
+    try {
+        const response = await config_1.default.get("products/categories");
+        res.json(response.data);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+exports.getallCategories = getallCategories;
+async function deleteCategoryEndpoint(req, res) {
+    try {
+        const { id } = req.params;
+        console.log(id);
+        const consumerKey = "ck_e576d6900528be88b08ddda9cfb0c38a8261fc86";
+        const consumerSecret = "cs_0e83f4e256cc79c784e4dff583bddc6c7e8598e0";
+        const _method = "DELETE";
+        const response = await config_1.default.delete(`products/categories/${id}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&method=${_method}`, {
+            force: true,
+        });
+        res.json(response.data);
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+exports.deleteCategoryEndpoint = deleteCategoryEndpoint;
 async function allWooCommerceProducts(req, res) {
     try {
         const response = await config_1.default.get("products");
