@@ -100,7 +100,7 @@ export async function updateOrderStatus(req: Request, res: Response) {
         await Promise.all(ids.map(async (id: number) => {
             await api.put(`orders/${id}`, data);
         }));
-        const updateOrderStatus = await cartModel.update({ status: 'processing' }, { where: { userId: user } })
+        const updateOrderStatus = await cartModel.update({ status: 'completed' }, { where: { userId: user } })
     return res.status(200).json({msg: "You have successfully retrieve all data", data: updateOrderStatus, success: true});
       } catch (error) {
        console.error(error);
