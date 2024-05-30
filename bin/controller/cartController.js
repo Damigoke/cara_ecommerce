@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteOrder = exports.deleteorder = exports.getsingleorder = exports.allWooCommerceOrder = exports.createorder = void 0;
+exports.deleteOrder = exports.deleteorder = exports.getsingleorder = exports.allWooCommerceOrder = exports.updateOrderStatus = exports.confirmOrder = exports.createorder = void 0;
 const cartModel_1 = require("../model/cartModel");
+const userModel_1 = __importDefault(require("../model/userModel"));
 const config_1 = __importDefault(require("../config/config"));
 // interface OrderData {
 //   id: number;
@@ -48,23 +49,53 @@ async function createorder(req, res) {
     }
 }
 exports.createorder = createorder;
-// export async function getOrder(req: Request, res: Response) {
-//      try {
-//         const limit = req.query?.limit as number | undefined;
-//         const offset = req.query?.offset as number | undefined
-//      const cart = await cartModel.findAndCountAll({
-//         limit: limit,
-//         offset: offset
-//      });
-//     return res.status(200).json({msg: "You have successfully retrieve all data", data: cart.rows, count: cart.count, success: true});
-//       } catch (error) {
-//        console.error(error);
-//      return res.status(500).json({ success: false });
-//        }
-// }
+async function confirmOrder(req, res) {
+    try {
+        const userId = req.params.id;
+        const user = await userModel_1.default.findOne({
+            where: {
+                id: userId
+            },
+            include: [
+                {
+                    model: cartModel_1.cartModel,
+                    as: 'order'
+                },
+            ],
+        });
+        const limit = req.query?.limit;
+        const offset = req.query?.offset;
+        //const cart = await cartModel.update({ status: 'paid' }, { where: { userId: id } })
+        //  const carts = await cartModel.findAll({where :{userId:id}})
+        return res.status(200).json({ msg: "You have successfully retrieve all data", data: user, success: true });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false });
+    }
+}
+exports.confirmOrder = confirmOrder;
+async function updateOrderStatus(req, res) {
+    try {
+        const userId = req.params.id;
+        //const cart = await cartModel.update({ status: 'paid' }, { where: { userId: id } })
+        const updateOrderStatus = await cartModel_1.cartModel.update({ status: 'processing' }, { where: { userId: userId } });
+        return res.status(200).json({ msg: "You have successfully retrieve all data", data: updateOrderStatus, success: true });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false });
+    }
+}
+exports.updateOrderStatus = updateOrderStatus;
 async function allWooCommerceOrder(req, res) {
     try {
-        const response = await config_1.default.get('orders');
+        const userId = req.query;
+        const response = await config_1.default.get('orders', {
+            params: {
+                customer: userId // Filter orders by customer ID
+            }
+        });
         res.json(response.data);
     }
     catch (error) {
@@ -76,6 +107,7 @@ exports.allWooCommerceOrder = allWooCommerceOrder;
 async function getsingleorder(req, res) {
     try {
         const id = req.params.id;
+        const userId = req.query;
         const response = await config_1.default.get(`orders/${id}`);
         res.json({ data: response.data });
     }

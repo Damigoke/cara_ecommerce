@@ -51,27 +51,73 @@ export async function createorder(req: Request | any, res: Response) {
     }
 }
 
-// export async function getOrder(req: Request, res: Response) {
-//      try {
+export async function confirmOrder(req: Request, res: Response) {
+     try {
+
+         const userId = req.params.id;
+         const user = await User.findOne({
+             where: {
+                 id: userId
+             },
+             include: [
+                 {
+                model: cartModel,
+                as: 'order'
+                 },
+             ],
+         });
        
-//         const limit = req.query?.limit as number | undefined;
-//         const offset = req.query?.offset as number | undefined
-//      const cart = await cartModel.findAndCountAll({
-//         limit: limit,
-//         offset: offset
-//      });
-//     return res.status(200).json({msg: "You have successfully retrieve all data", data: cart.rows, count: cart.count, success: true});
-//       } catch (error) {
-//        console.error(error);
+        const limit = req.query?.limit as number | undefined;
+        const offset = req.query?.offset as number | undefined
+         //const cart = await cartModel.update({ status: 'paid' }, { where: { userId: id } })
+        //  const carts = await cartModel.findAll({where :{userId:id}})
+    return res.status(200).json({msg: "You have successfully retrieve all data", data: user, success: true});
+      } catch (error) {
+       console.error(error);
     
-//      return res.status(500).json({ success: false });
-//        }
-// }
+     return res.status(500).json({ success: false });
+       }
+}
+
+export async function updateOrderStatus(req: Request, res: Response) {
+     try {
+
+         const userId = req.query.id;
+
+         if (!userId || typeof userId !== 'string') {
+            return res.status(400).json({ success: false, msg: 'Invalid or missing userId' });
+        }
+         const user = userId as string;
+         
+        const ids = req.body.id;
+        if (!Array.isArray(ids) || ids.some(id => isNaN(parseInt(id)))) {
+            return res.status(400).json({ success: false, msg: 'Invalid ID format' });
+        }
+         const data = {
+             status: "completed"
+         }
+
+        await Promise.all(ids.map(async (id: number) => {
+            await api.put(`orders/${id}`, data);
+        }));
+        const updateOrderStatus = await cartModel.update({ status: 'completed' }, { where: { userId: user } })
+    return res.status(200).json({msg: "You have successfully retrieve all data", data: updateOrderStatus, success: true});
+      } catch (error) {
+       console.error(error);
+    
+     return res.status(500).json({ success: false });
+       }
+}
     
 export async function allWooCommerceOrder(req: Request | any, res: Response) {
 
     try {
-        const response = await api.get('orders');
+        const userId = req.query
+        const response = await api.get('orders', {
+            params: {
+                customer: userId // Filter orders by customer ID
+            }
+        });
         res.json(response.data);
     } catch (error: any) {
         console.error(error);
@@ -83,7 +129,8 @@ export async function getsingleorder(req: Request | any, res: Response) {
 
     try {
         const id = req.params.id
-      const response = await api.get(`orders/${id}`);
+        const userId = req.query
+        const response = await api.get(`orders/${id}`);
     res.json({ data: response.data });
     } catch (error: any) {
      console.error(error);

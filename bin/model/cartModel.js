@@ -7,6 +7,7 @@ exports.cartModel = void 0;
 const sequelize_1 = require("sequelize");
 const index_1 = __importDefault(require("../config/index"));
 const userModel_1 = __importDefault(require("./userModel"));
+const productModel_1 = require("./productModel");
 const sequelize = (0, index_1.default)();
 exports.cartModel = sequelize.define('carts', {
     id: {
@@ -23,7 +24,11 @@ exports.cartModel = sequelize.define('carts', {
         allowNull: false,
     },
     productId: {
-        type: sequelize_1.DataTypes.INTEGER
+        type: sequelize_1.DataTypes.INTEGER,
+        references: {
+            model: productModel_1.productModel,
+            key: 'id',
+        },
     },
     userId: {
         type: sequelize_1.DataTypes.UUID,
