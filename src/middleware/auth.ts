@@ -21,13 +21,13 @@ export async function auth(req: Request | any, res: Response, next: NextFunction
             return res.status(401).send({ error: "Token not available on this route" });
         }
 
-        const { id, role } = verified as { id: string, role: string }; // Assuming the role is included in the JWT payload
+        const { id } = verified as { id: string, role: string }; // Assuming the role is included in the JWT payload
 
         // Find user by id
         const user = await User.findOne({ where: { id } });
 
-        if (user && role !== 'admin') {
-            return res.status(401).json({ Error: "Details not correct or insufficient permissions, Kindly sign in as an admin"});
+        if (!user) {
+             return res.status(401).json({ Error: "Kindly login correct details as a user" });
         }
 
         req.user = verified;
