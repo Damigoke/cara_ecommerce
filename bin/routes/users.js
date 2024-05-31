@@ -10,6 +10,6 @@ const router = express_1.default.Router();
 /* GET users listing. */
 router.post('/register', userController_1.createUser);
 router.post('/login', userController_1.loginUser);
-router.get('/get-user', userController_1.getUserAndProduct);
-router.delete('/delete/:id', auth_1.auth, userController_1.deleteUser);
+router.get('/get-user', auth_1.adminAuth, userController_1.getUserAndProduct);
+router.delete('/delete/:id', auth_1.adminAuth, userController_1.deleteUser);
 exports.default = router;

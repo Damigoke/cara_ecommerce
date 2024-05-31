@@ -11,8 +11,8 @@ const router = express_1.default.Router();
 router.post('/Order/:productIds', auth_1.auth, cartController_1.createorder);
 router.get('/get-order', auth_1.auth, cartController_1.allWooCommerceOrder);
 router.get('/get-order/:id', auth_1.auth, cartController_1.getsingleorder);
-router.get('/confirm-order/:userId', cartController_1.confirmOrder);
-router.put('/update-order-status/:userId', cartController_1.updateOrderStatus);
+router.get('/confirm-order/:userId', auth_1.auth, cartController_1.confirmOrder);
+router.put('/update-order-status/', auth_1.auth, cartController_1.updateOrderStatus);
 router.get('/delete-order/:productId', auth_1.auth, cartController_1.deleteorder);
 // router.delete('/delete-order', auth, deleteAllOrder)
 exports.default = router;

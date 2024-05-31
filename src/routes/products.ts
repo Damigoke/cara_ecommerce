@@ -8,7 +8,7 @@ import { adminAuth } from '../middleware/auth';
 router.post('/createproduct', adminAuth, createproduct)
 router.post('/createcategory', adminAuth, createcategoryEndpoint)
 router.get('/getAllproduct', allWooCommerceProducts)
-router.get('/getAllCategory', adminAuth, getallCategories)
+router.get('/getAllCategory', getallCategories)
 router.get('/getproduct/:productId',  getSingleProducts)
 router.get('/update-product/:productId', adminAuth, updateproduct)
 router.get('/delete-product/:productId', adminAuth, deleteproduct)

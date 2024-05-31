@@ -77,9 +77,22 @@ async function confirmOrder(req, res) {
 exports.confirmOrder = confirmOrder;
 async function updateOrderStatus(req, res) {
     try {
-        const userId = req.params.id;
-        //const cart = await cartModel.update({ status: 'paid' }, { where: { userId: id } })
-        const updateOrderStatus = await cartModel_1.cartModel.update({ status: 'processing' }, { where: { userId: userId } });
+        const userId = req.query.id;
+        if (!userId || typeof userId !== 'string') {
+            return res.status(400).json({ success: false, msg: 'Invalid or missing userId' });
+        }
+        const user = userId;
+        const ids = req.body.id;
+        if (!Array.isArray(ids) || ids.some(id => isNaN(parseInt(id)))) {
+            return res.status(400).json({ success: false, msg: 'Invalid ID format' });
+        }
+        const data = {
+            status: "completed"
+        };
+        await Promise.all(ids.map(async (id) => {
+            await config_1.default.put(`orders/${id}`, data);
+        }));
+        const updateOrderStatus = await cartModel_1.cartModel.update({ status: 'completed' }, { where: { userId: user } });
         return res.status(200).json({ msg: "You have successfully retrieve all data", data: updateOrderStatus, success: true });
     }
     catch (error) {
