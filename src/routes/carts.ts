@@ -1,11 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 //import { CreateOrder, getOrder, deleteOrder, deleteAllOrder } from '../controller/cartController';
 import { createorder, allWooCommerceOrder, deleteorder, getsingleorder, confirmOrder, updateOrderStatus } from '../controller/cartController'
-import { auth } from '../middleware/auth';
+import { auth, adminAuth } from '../middleware/auth';
 const router = express.Router();
 
 
-router.post('/Order/:productIds', auth, createorder);
+router.post('/Order/:productIds', createorder);
 router.get('/get-order', auth, allWooCommerceOrder);
 router.get('/get-order/:id', auth, getsingleorder);
 router.get('/confirm-order/:userId', auth, confirmOrder);
